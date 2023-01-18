@@ -1,11 +1,13 @@
 import fastifyServer from "fastify";
 // import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import cors from "@fastify/cors";
+import dotenv from "dotenv";
 // import socketioServer from "fastify-socket.io";
 // import { router } from "./router";
 // import { createContext } from "./context";
 // import fastifyCookie from "@fastify/cookie";
 // import fastifyJwt from "@fastify/jwt";
+dotenv.config();
 
 type Mode = "work" | "break";
 
@@ -60,7 +62,8 @@ fastify.get("/", (req, res) => {
 
 (async () => {
 	try {
-		await fastify.listen({ port: 3000 });
+		// @ts-ignore
+		await fastify.listen({ port: process.env.PORT || 3000 });
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);

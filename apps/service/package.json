@@ -30,6 +30,7 @@
     "@trpc/server": "^10.7.0",
     "bullmq": "^3.5.1",
     "database": "*",
+    "dotenv": "^16.0.3",
     "fastify": "^4.10.2",
     "fastify-socket.io": "^4.0.0",
     "got": "^11.8.2",

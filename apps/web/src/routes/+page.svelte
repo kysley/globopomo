@@ -2,6 +2,7 @@
   import dayjs from "dayjs";
   import { onMount } from "svelte";
   import { timeDiff } from "../lib/utils";
+  import { PUBLIC_SERVICE_URL } from "$env/static/public";
 
   // const;
 
@@ -27,7 +28,8 @@
     : "...";
 
   const fetchGlobo = async () => {
-    const res = await fetch("http://localhost:3000/");
+    console.log(import.meta.env);
+    const res = await fetch(PUBLIC_SERVICE_URL);
     return await res.json();
   };
 
