@@ -43,14 +43,14 @@
   }
 
   async function loadPomo() {
-    const res = await fetchGlobo();
-    console.log(res);
-    if (res) {
+    try {
+      const res = await fetchGlobo();
       timer = new PomoTimer({ mode: res.mode, initAt: dayjs(res.initAt) });
-    } else {
+    } catch (e) {
       timer = new PomoTimer({});
+    } finally {
+      startInterval();
     }
-    startInterval();
   }
 
   onMount(async () => {
