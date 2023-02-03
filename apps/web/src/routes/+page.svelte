@@ -1,29 +1,18 @@
 <script lang="ts">
   import dayjs from "dayjs";
   import { onMount } from "svelte";
-  import { timeDiff } from "../lib/utils";
   import { PUBLIC_SERVICE_URL } from "$env/static/public";
   import { PomoTimer } from "timer";
 
-  let timer = new PomoTimer({});
-
+  let timer: PomoTimer | undefined = undefined;
   const steps = ["-", "\\", "|", "/"];
   let currentStep = 0;
 
-  $: paused = timer.paused;
+  $: paused = timer?.paused;
 
   let interval: NodeJS.Timer;
-  let globoState: {
-    mode: "work" | "break";
-    endsAt: number;
-    config: { workDuration: number; breakDuration: number };
-  };
 
-  $: title = globoState
-    ? globoState?.mode === "work"
-      ? "working"
-      : "on break"
-    : "...";
+  $: title = timer ? (timer.mode === "work" ? "working" : "on break") : "...";
 
   const fetchGlobo = async () => {
     console.log(import.meta.env);
@@ -32,11 +21,11 @@
   };
 
   async function syncGlobo() {
-    globoState = await fetchGlobo();
+    await loadPomo();
   }
 
   function startInterval() {
-    timer.start();
+    timer?.start();
     interval = setInterval(() => {
       timer = timer;
       // remainder = timer.remaining;
@@ -44,20 +33,28 @@
   }
 
   function handlePauseUnpause() {
-    if (timer.paused) {
-      timer.unpause();
+    if (timer?.paused) {
+      timer?.unpause();
     } else {
-      timer.pause();
+      timer?.pause();
     }
 
     timer = timer;
   }
 
-  onMount(async () => {
+  async function loadPomo() {
     const res = await fetchGlobo();
-    globoState = res;
-
+    console.log(res);
+    if (res) {
+      timer = new PomoTimer({ mode: res.mode, initAt: dayjs(res.initAt) });
+    } else {
+      timer = new PomoTimer({});
+    }
     startInterval();
+  }
+
+  onMount(async () => {
+    loadPomo();
   });
 </script>
 
@@ -68,20 +65,21 @@
   <meta name="description" content="Globopomo, a shared pomodoro timer" />
 </svelte:head>
 
-<section>
-  <div class="container monospace">
-    {#if globoState}
-      <span class="text-6xl"
+{#if timer}
+  <section>
+    <div class="container monospace">
+      <span class="text-6xl" class:animated={timer.mode === "break"}
         >{timer.mode === "work" ? "working" : "on break"}</span
       >
 
       <p>
-        <span>[{steps[currentStep]}]</span>...{timer.remaining}
+        <!-- <span>[{steps[currentStep]}]</span -->
+        *¯`·.{timer.remaining}.·´¯`°
       </p>
       <div>
         <button
           on:click={() => {
-            timer.switch();
+            timer?.switch();
             timer = timer;
           }}>[skip]</button
         >
@@ -90,14 +88,11 @@
         >
         <button on:click={syncGlobo}>[sync]</button>
       </div>
-    {:else}
-      <span class="text-6xl">waking up...</span>
-    {/if}
-  </div>
+    </div>
 
-  <!-- <Counter /> -->
-</section>
-<section />
+    <!-- <Counter /> -->
+  </section>
+{/if}
 
 <style>
   section {
@@ -116,5 +111,28 @@
 
   .monospace {
     font-family: monospace;
+  }
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  .animated {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 25s ease infinite;
+    background-clip: text;
+    color: transparent;
+  }
+
+  button:hover {
+    text-decoration: underline;
+    color: mediumblue;
   }
 </style>
