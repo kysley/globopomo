@@ -4,7 +4,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "target": "ESNext",
-    "module": "CommonJS",
+    "module": "ESNext",
     "composite": false,
     "declaration": true,
     "declarationMap": true,
