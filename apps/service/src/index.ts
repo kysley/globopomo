@@ -2,6 +2,7 @@ import fastifyServer from "fastify";
 // import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import cors from "@fastify/cors";
 import dotenv from "dotenv";
+import { PomoTimer } from "timer";
 // import socketioServer from "fastify-socket.io";
 // import { router } from "./router";
 // import { createContext } from "./context";
@@ -9,36 +10,7 @@ import dotenv from "dotenv";
 // import fastifyJwt from "@fastify/jwt";
 dotenv.config();
 
-type Mode = "work" | "break";
-
-const WORK_DURATION = 60 * 1000 * 25;
-const BREAK_DURATION = 60 * 1000 * 5;
-
-const start = Date.now();
-const initialMode: Mode = "work";
-
-let currentMode: Mode = initialMode;
-let lastSwapped: number = start;
-
-setInterval(() => {
-	const now = Date.now();
-	const diff = now - lastSwapped;
-
-	if (currentMode === "work") {
-		if (diff >= WORK_DURATION) {
-			console.info("swapping to break");
-			currentMode = "break";
-			lastSwapped = now;
-		}
-	} else if (currentMode === "break") {
-		if (diff >= BREAK_DURATION) {
-			console.info("swapping to work");
-			currentMode = "work";
-			lastSwapped = now;
-		}
-	}
-	// console.log(currentMode);
-}, 1000);
+const defaultTimer = new PomoTimer({});
 
 const fastify = fastifyServer();
 fastify.register(cors, {
@@ -48,15 +20,9 @@ fastify.register(cors, {
 });
 
 fastify.get("/", (req, res) => {
-	const timeUntil = currentMode === "work" ? WORK_DURATION : BREAK_DURATION;
-
 	res.code(200).send({
-		mode: currentMode,
-		endsAt: lastSwapped + timeUntil,
-		config: {
-			workDuration: WORK_DURATION,
-			breakDuration: BREAK_DURATION,
-		},
+		mode: defaultTimer.mode,
+		initAt: defaultTimer.initAt.valueOf(),
 	});
 });
 
@@ -64,6 +30,7 @@ fastify.get("/", (req, res) => {
 	try {
 		// @ts-ignore
 		await fastify.listen({ port: process.env.PORT || 3000 });
+		defaultTimer.start();
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);
