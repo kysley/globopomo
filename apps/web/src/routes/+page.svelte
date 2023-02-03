@@ -3,13 +3,14 @@
   import { onMount } from "svelte";
   import { timeDiff } from "../lib/utils";
   import { PUBLIC_SERVICE_URL } from "$env/static/public";
+  import { PomoTimer } from "timer";
 
-  // const;
+  let timer = new PomoTimer({});
 
   const steps = ["-", "\\", "|", "/"];
   let currentStep = 0;
 
-  let paused = false;
+  $: paused = timer.paused;
 
   let interval: NodeJS.Timer;
   let globoState: {
@@ -17,9 +18,6 @@
     endsAt: number;
     config: { workDuration: number; breakDuration: number };
   };
-
-  $: pomoTimeRemaining = "";
-  $: percentage = 0;
 
   $: title = globoState
     ? globoState?.mode === "work"
@@ -37,54 +35,22 @@
     globoState = await fetchGlobo();
   }
 
-  function swapInterval(config: typeof globoState) {
-    if (interval) {
-      clearInterval(interval);
-    }
-    // interval = undefined;
-    globoState = config;
-    startInterval();
+  function startInterval() {
+    timer.start();
+    interval = setInterval(() => {
+      timer = timer;
+      // remainder = timer.remaining;
+    }, 1000);
   }
 
-  function startInterval() {
-    interval = setInterval(() => {
-      const swapAt = dayjs(globoState?.endsAt);
+  function handlePauseUnpause() {
+    if (timer.paused) {
+      timer.unpause();
+    } else {
+      timer.pause();
+    }
 
-      if (dayjs().to === swapAt) {
-        console.log("swappinbg");
-        const newMode = globoState.mode === "work" ? "break" : "work";
-        swapInterval({
-          mode: newMode,
-          endsAt: dayjs()
-            .add(
-              globoState.config[
-                newMode === "work" ? "breakDuration" : "workDuration"
-              ] /
-                1000 /
-                60,
-              "minutes"
-            )
-            .valueOf(),
-          config: globoState.config,
-        });
-        return;
-      }
-
-      percentage =
-        timeDiff(
-          globoState.endsAt,
-          globoState.mode === "work"
-            ? globoState.config.workDuration
-            : globoState.config.breakDuration
-        ) * 100;
-
-      pomoTimeRemaining = swapAt.fromNow(true);
-      if (currentStep === steps.length - 1) {
-        currentStep = 0;
-      } else {
-        currentStep++;
-      }
-    }, 1000);
+    timer = timer;
   }
 
   onMount(async () => {
@@ -93,7 +59,6 @@
 
     startInterval();
   });
-  // on
 </script>
 
 <svelte:head>
@@ -107,33 +72,22 @@
   <div class="container monospace">
     {#if globoState}
       <span class="text-6xl"
-        >{globoState?.mode === "work" ? "working" : "on break"}</span
+        >{timer.mode === "work" ? "working" : "on break"}</span
       >
 
-      <p class="">
-        <span>[{steps[currentStep]}]</span>...{pomoTimeRemaining}
+      <p>
+        <span>[{steps[currentStep]}]</span>...{timer.remaining}
       </p>
       <div>
         <button
-          on:click={() =>
-            swapInterval({
-              mode: globoState.mode === "work" ? "break" : "work",
-              endsAt: dayjs()
-                .add(
-                  globoState.config[
-                    globoState.mode === "work"
-                      ? "breakDuration"
-                      : "workDuration"
-                  ] /
-                    1000 /
-                    60,
-                  "minutes"
-                )
-                .valueOf(),
-              config: globoState.config,
-            })}>[skip]</button
+          on:click={() => {
+            timer.switch();
+            timer = timer;
+          }}>[skip]</button
         >
-        <button disabled on:click={console.log}>[pause]</button>
+        <button on:click={handlePauseUnpause}
+          >[{paused ? "unpause" : "pause"}]</button
+        >
         <button on:click={syncGlobo}>[sync]</button>
       </div>
     {:else}

@@ -1042,7 +1042,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/node@*", "@types/node@>=10.0.0", "@types/node@^18.11.18":
+"@types/node@*", "@types/node@>=10.0.0", "@types/node@^18.11.18", "@types/node@^18.11.9":
   version "18.11.18"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.18.tgz#8dfb97f0da23c2293e554c5a50d61ef134d7697f"
   integrity sha512-DHQpWGjyQKSHj3ebjFI/wRKcqQcdR+MoFBygntYOZytCqNfkd2ZC4ARDJ2DQqhjH5p85Nnd3jhUJIXrszFX/JA==
@@ -4565,7 +4565,7 @@ types@*:
   resolved "https://registry.yarnpkg.com/types/-/types-0.1.1.tgz#860c6859d11366293f835d8c95aebcf95029838e"
   integrity sha512-JuntZtJj4MKLE9x/XBs7IjsznYhzETwr34pw3XJTKvgYtAMdeMG+o8x8U85E5Lm6eCPa1DdOdGVsHMwq4ZnZAg==
 
-typescript@*, typescript@^4.9.3, typescript@^4.9.4:
+typescript@*, typescript@^4.8.3, typescript@^4.9.3, typescript@^4.9.4:
   version "4.9.4"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.9.4.tgz#a2a3d2756c079abda241d75f149df9d561091e78"
   integrity sha512-Uz+dTXYzxXXbsFpM86Wh3dKCxrQqUcVMxwU54orwlJjOpO3ao8L7j5lH+dWfTwgCwIuM9GQ2kvVotzYJMXTBZg==
@@ -4753,6 +4753,11 @@ whatwg-url@^7.0.0:
     lodash.sortby "^4.7.0"
     tr46 "^1.0.1"
     webidl-conversions "^4.0.2"
+
+whendys@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/whendys/-/whendys-1.0.0.tgz#b7a2a9ce6d4b208bdac9ee006ff751cdc3ef2791"
+  integrity sha512-/rL2K/XEUSqIHdyLQPjplhEiajRsbpnsUdtAFThM1DVG3R1vXA1gOz9FM8jbcKw8vF4hfDDxRk9qFi9THTf2Dw==
 
 which@^2.0.1:
   version "2.0.2"

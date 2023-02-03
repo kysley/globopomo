@@ -27,6 +27,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"timer": "*",
 		"dayjs": "^1.11.7"
 	}
 }
