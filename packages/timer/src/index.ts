@@ -13,10 +13,10 @@ export class PomoTimer {
 
 	constructor(init: Partial<PomoTimer>) {
 		this.config = init.config || { duration: { break: 5, work: 25 } };
-		this.initAt = dayjs();
+		this.initAt = init.initAt || dayjs();
 		this.mode = init.mode || "work";
 		this.swapAt = this.initAt.add(this.config.duration[this.mode], "minutes");
-		this.remaining = when(this.initAt.toDate());
+		this.remaining = "wl:cm";
 	}
 
 	get percentage() {
