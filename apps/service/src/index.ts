@@ -22,7 +22,7 @@ fastify.register(cors, {
 fastify.get("/", (req, res) => {
 	res.code(200).send({
 		mode: defaultTimer.mode,
-		initAt: defaultTimer.initAt.valueOf(),
+		initAt: defaultTimer?.initAt?.valueOf(),
 	});
 });
 
