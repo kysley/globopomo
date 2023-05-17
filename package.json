@@ -13,11 +13,11 @@
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
   "devDependencies": {
-    "rome": "latest",
-    "turbo": "latest"
+    "rome": "^12.1.0",
+    "turbo": "^1.9.6"
   },
   "engines": {
-    "node": ">=14.0.0"
+    "node": ">=19.0.0"
   },
   "dependencies": {},
   "packageManager": "yarn@1.22.5"

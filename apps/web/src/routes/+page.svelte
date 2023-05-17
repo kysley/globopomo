@@ -2,9 +2,9 @@
   import dayjs from "dayjs";
   import { onMount } from "svelte";
   import { PUBLIC_SERVICE_URL } from "$env/static/public";
-  import { PomoTimer } from "timer";
+  import { Globopomo } from "timer";
 
-  let timer: PomoTimer | undefined = undefined;
+  let timer: Globopomo | undefined = undefined;
   const steps = ["-", "\\", "|", "/"];
   let currentStep = 0;
 
@@ -25,7 +25,7 @@
   }
 
   function startInterval() {
-    timer?.start();
+    // timer?.start(() => {});
     interval = setInterval(() => {
       timer = timer;
       // remainder = timer.remaining;
@@ -45,9 +45,9 @@
   async function loadPomo() {
     try {
       const res = await fetchGlobo();
-      timer = new PomoTimer({ mode: res.mode, initAt: dayjs(res.initAt) });
+      timer = new Globopomo(res);
     } catch (e) {
-      timer = new PomoTimer({});
+      timer = new Globopomo({ breakDuration: 1, workDuration: 2 });
     } finally {
       startInterval();
     }
@@ -73,13 +73,13 @@
       >
 
       <p>
-        <!-- <span>[{steps[currentStep]}]</span -->
-        *¯`·.{timer.remaining}.·´¯`°
+        <!-- <span>[{steps[currentStep]}]</span> -->
+        *¯`·.{timer.getTimeRemaining()}.·´¯`°
       </p>
       <div>
         <button
           on:click={() => {
-            timer?.switch();
+            timer?.skipMode();
             timer = timer;
           }}>[skip]</button
         >

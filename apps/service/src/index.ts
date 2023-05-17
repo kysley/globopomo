@@ -2,15 +2,14 @@ import fastifyServer from "fastify";
 // import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import cors from "@fastify/cors";
 import dotenv from "dotenv";
-import { PomoTimer } from "timer";
+import { Globopomo } from "timer";
 // import socketioServer from "fastify-socket.io";
 // import { router } from "./router";
 // import { createContext } from "./context";
 // import fastifyCookie from "@fastify/cookie";
 // import fastifyJwt from "@fastify/jwt";
 dotenv.config();
-
-const defaultTimer = new PomoTimer({});
+const globo = new Globopomo({ breakDuration: 5, workDuration: 25 });
 
 const fastify = fastifyServer();
 fastify.register(cors, {
@@ -20,24 +19,20 @@ fastify.register(cors, {
 });
 
 fastify.get("/", (req, res) => {
-	res.code(200).send({
-		mode: defaultTimer.mode,
-		initAt: defaultTimer?.initAt?.valueOf(),
-	});
+	res.code(200).send(globo.info);
 });
 
 (async () => {
 	try {
 		// @ts-ignore
 		await fastify.listen({ port: process.env.PORT || 3000 });
-		defaultTimer.start();
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);
 	}
 })();
 
-export {};
+// export {};
 // export type { AppRouter } from "./router";
 
 // export const fastify = fastifyServer();

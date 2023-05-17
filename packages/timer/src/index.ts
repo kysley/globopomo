@@ -1,83 +1,101 @@
 import dayjs, { Dayjs } from "dayjs";
-import { when } from "whendys";
 
-export class PomoTimer {
-	config: { duration: { break: number; work: number } };
-	interval: NodeJS.Timer | undefined = undefined;
-	initAt: dayjs.Dayjs | undefined;
-	swapAt: dayjs.Dayjs | undefined;
-	mode: "work" | "break";
-	remaining: string;
-	paused = false;
-	pausedAt: Dayjs | undefined = undefined;
+interface PomodoroTimerOptions {
+	workDuration: number; // in minutes
+	breakDuration: number; // in minutes
+	startedAt?: Date; // optional startedAt date
+}
 
-	constructor(init: Partial<PomoTimer>) {
-		this.config = init.config || { duration: { break: 1, work: 2 } };
-		// this.initAt = init.initAt || dayjs();
-		this.mode = init.mode || "work";
-		// this.swapAt = this.initAt.add(this.config.duration[this.mode], "minutes");
-		this.remaining = "wl:cm";
+class Globopomo {
+	private workDuration: number;
+	private breakDuration: number;
+	private startedAt: Dayjs;
+	private pausedAt: Dayjs | null;
+	private isPaused: boolean;
+	private isWorkMode: boolean;
+
+	constructor({
+		workDuration,
+		breakDuration,
+		startedAt,
+	}: PomodoroTimerOptions) {
+		this.workDuration = workDuration * 60; // convert minutes to seconds
+		this.breakDuration = breakDuration * 60; // convert minutes to seconds
+		this.startedAt = dayjs(startedAt || new Date());
+		this.pausedAt = null;
+		this.isPaused = false;
+		this.isWorkMode = true;
 	}
 
-	get percentage() {
-		//@ts-ignore
-		return (this.swapAt - this.initAt) / this.swapAt;
+	public get mode() {
+		return this.isWorkMode ? "work" : "break";
 	}
 
-	pause() {
-		clearInterval(this.interval);
-		this.paused = true;
-		this.pausedAt = dayjs();
+	public get paused() {
+		return this.isPaused;
 	}
 
-	unpause() {
-		if (this.paused && this.pausedAt) {
-			const now = dayjs().valueOf();
-			const start = this.pausedAt.valueOf();
+	public get info() {
+		return {
+			startedAt: this.startedAt,
+			workDuration: this.workDuration / 60,
+			breakDuration: this.breakDuration / 60,
+		};
+	}
 
-			const secondsDiff = Math.floor((now - start) / 1000);
-			this.swapAt = this.swapAt?.add(secondsDiff, "seconds");
-			console.log(secondsDiff);
+	private calculateTimeRemaining(): number {
+		const duration = this.isWorkMode ? this.workDuration : this.breakDuration;
+		const elapsedTime = this.pausedAt
+			? this.pausedAt.diff(this.startedAt, "second")
+			: dayjs().diff(this.startedAt, "second");
+		const timeRemaining = duration - elapsedTime;
+		return Math.max(timeRemaining, 0);
+	}
 
-			this.paused = false;
-			this.initAt = dayjs();
-			this.remaining = dayjs(this.swapAt.valueOf() - dayjs().valueOf()).format(
-				"mm:ss",
-			);
-			this.start();
+	private formatTime(duration: number): string {
+		const minutes = Math.floor(duration / 60);
+		const seconds = duration % 60;
+		return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(
+			2,
+			"0",
+		)}`;
+	}
+
+	public getTimeRemaining(): string {
+		if (this.isPaused) {
+			return this.formatTime(this.calculateTimeRemaining());
+		} else {
+			const timeRemaining = this.calculateTimeRemaining();
+			if (timeRemaining === 0) {
+				this.toggleMode();
+			}
+			return this.formatTime(timeRemaining);
 		}
 	}
 
-	switch() {
-		const newMode = this.mode === "work" ? "break" : "work";
-		this.mode = newMode;
-		this.initAt = dayjs();
-		this.swapAt = this.initAt.add(this.config.duration[newMode], "minutes");
-		clearInterval(this.interval);
-		this.remaining = dayjs(this.swapAt.valueOf() - dayjs().valueOf()).format(
-			"mm:ss",
-		);
-		this.start();
+	public toggleMode(): void {
+		this.isWorkMode = !this.isWorkMode;
+		this.startedAt = dayjs();
 	}
 
-	start() {
-		this.initAt = dayjs();
-		this.swapAt = this.initAt.add(this.config.duration[this.mode], "minutes");
+	public pause(): void {
+		if (!this.isPaused) {
+			this.pausedAt = dayjs();
+			this.isPaused = true;
+		}
+	}
 
-		this.remaining = dayjs(this.swapAt.valueOf() - dayjs().valueOf()).format(
-			"mm:ss",
-		);
-		// console.log(this.remaining, dayjs().valueOf(), this.swapAt.valueOf());
-		this.interval = setInterval(() => {
-			// console.log(this.remaining, dayjs().valueOf(), this.swapAt.valueOf());
-			const now = dayjs();
-			if (now.valueOf() >= this.swapAt.valueOf()) {
-				this.switch();
-				return;
-			}
-			this.remaining = dayjs(this.swapAt.valueOf() - now.valueOf()).format(
-				"mm:ss",
-			);
-		}, 1000);
+	public unpause(): void {
+		if (this.isPaused) {
+			const elapsedTime = dayjs().diff(this.pausedAt, "second");
+			this.startedAt = this.startedAt.add(elapsedTime, "second");
+			this.pausedAt = null;
+			this.isPaused = false;
+		}
+	}
+
+	public skipMode(): void {
+		this.toggleMode();
 	}
 }
+export { Globopomo };
