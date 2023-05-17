@@ -18,13 +18,13 @@ fastify.register(cors, {
   credentials: true,
 });
 
-fastify.get("/", (req, res) => {
+fastify.get("/pomo", (req, res) => {
   res.code(200).send(globo.info);
 });
 
 (async () => {
   try {
-    fastify.listen({ port: Number(process.env.PORT) || 3000, path: "/pomo" });
+    fastify.listen({ port: Number(process.env.PORT) || 3000 });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);
