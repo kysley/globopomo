@@ -15,8 +15,7 @@
   $: title = timer ? (timer.mode === "work" ? "working" : "on break") : "...";
 
   const fetchGlobo = async () => {
-    console.log(import.meta.env);
-    const res = await fetch(PUBLIC_SERVICE_URL);
+    const res = await fetch(`${PUBLIC_SERVICE_URL}/pomo`);
     return await res.json();
   };
 

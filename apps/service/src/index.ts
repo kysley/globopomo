@@ -11,10 +11,14 @@ import { Globopomo } from "timer";
 dotenv.config();
 const globo = new Globopomo({ breakDuration: 5, workDuration: 25 });
 
+setInterval(() => {
+	console.log(globo.getTimeRemaining())
+	console.log(globo.mode)
+}, 1000 * 60)
+
 const fastify = fastifyServer();
 fastify.register(cors, {
-  // put your options here
-  origin: ["http://localhost:5173", "https://pomo.e8y.fun/"],
+  origin: ["http://localhost:5173", "https://pomo.e8y.fun"],
   credentials: true,
 });
 
@@ -24,7 +28,7 @@ fastify.get("/pomo", (req, res) => {
 
 (async () => {
   try {
-    fastify.listen({ port: Number(process.env.PORT) || 3000 });
+    fastify.listen({ port: Number(process.env.PORT) || 8011 });
   } catch (err) {
     fastify.log.error(err);
     process.exit(1);

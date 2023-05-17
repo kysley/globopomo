@@ -1,4 +1,7 @@
 import dayjs, { Dayjs } from "dayjs";
+import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
 
 interface PomodoroTimerOptions {
 	workDuration: number; // in minutes
@@ -21,7 +24,7 @@ class Globopomo {
 	}: PomodoroTimerOptions) {
 		this.workDuration = workDuration * 60; // convert minutes to seconds
 		this.breakDuration = breakDuration * 60; // convert minutes to seconds
-		this.startedAt = dayjs(startedAt || new Date());
+		this.startedAt = dayjs(startedAt || new Date()).utc();
 		this.pausedAt = null;
 		this.isPaused = false;
 		this.isWorkMode = true;
@@ -47,7 +50,7 @@ class Globopomo {
 		const duration = this.isWorkMode ? this.workDuration : this.breakDuration;
 		const elapsedTime = this.pausedAt
 			? this.pausedAt.diff(this.startedAt, "second")
-			: dayjs().diff(this.startedAt, "second");
+			: dayjs().utc().diff(this.startedAt, "second");
 		const timeRemaining = duration - elapsedTime;
 		return Math.max(timeRemaining, 0);
 	}
@@ -75,19 +78,19 @@ class Globopomo {
 
 	public toggleMode(): void {
 		this.isWorkMode = !this.isWorkMode;
-		this.startedAt = dayjs();
+		this.startedAt = dayjs().utc();
 	}
 
 	public pause(): void {
 		if (!this.isPaused) {
-			this.pausedAt = dayjs();
+			this.pausedAt = dayjs().utc();
 			this.isPaused = true;
 		}
 	}
 
 	public unpause(): void {
 		if (this.isPaused) {
-			const elapsedTime = dayjs().diff(this.pausedAt, "second");
+			const elapsedTime = dayjs().utc().diff(this.pausedAt, "second");
 			this.startedAt = this.startedAt.add(elapsedTime, "second");
 			this.pausedAt = null;
 			this.isPaused = false;
