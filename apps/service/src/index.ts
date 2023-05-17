@@ -14,7 +14,7 @@ const globo = new Globopomo({ breakDuration: 5, workDuration: 25 });
 const fastify = fastifyServer();
 fastify.register(cors, {
 	// put your options here
-	origin: "http://localhost:5173",
+	origin: ["http://localhost:5173", "https://pomo.e8y.fun"],
 	credentials: true,
 });
 
