@@ -13,23 +13,22 @@ const globo = new Globopomo({ breakDuration: 5, workDuration: 25 });
 
 const fastify = fastifyServer();
 fastify.register(cors, {
-	// put your options here
-	origin: ["http://localhost:5173", "https://pomo.e8y.fun"],
-	credentials: true,
+  // put your options here
+  origin: ["http://localhost:5173", "https://pomo.e8y.fun/"],
+  credentials: true,
 });
 
 fastify.get("/", (req, res) => {
-	res.code(200).send(globo.info);
+  res.code(200).send(globo.info);
 });
 
 (async () => {
-	try {
-		// @ts-ignore
-		await fastify.listen({ port: process.env.PORT || 3000 });
-	} catch (err) {
-		fastify.log.error(err);
-		process.exit(1);
-	}
+  try {
+    fastify.listen({ port: Number(process.env.PORT) || 3000, path: "/pomo" });
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
 })();
 
 // export {};
