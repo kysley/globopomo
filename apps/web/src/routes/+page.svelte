@@ -17,7 +17,7 @@
   $: room = $page.url.searchParams.get("room");
 
   const fetchGlobo = async () => {
-    let url = `${PUBLIC_SERVICE_URL}/pomo`;
+    let url = `${PUBLIC_SERVICE_URL}`;
     if (room) {
       url += `?room=${room}`;
     }
