@@ -1,20 +1,23 @@
 import fastifyServer from "fastify";
-// import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
+import { fastifyTRPCPlugin } from "@trpc/server/adapters/fastify";
 import cors from "@fastify/cors";
 import dotenv from "dotenv";
 import { Globopomo } from "timer";
+import { generateAlphanumericCode } from "./utils";
 // import socketioServer from "fastify-socket.io";
 // import { router } from "./router";
 // import { createContext } from "./context";
 // import fastifyCookie from "@fastify/cookie";
 // import fastifyJwt from "@fastify/jwt";
 dotenv.config();
-const globo = new Globopomo({ breakDuration: 5, workDuration: 25 });
+const globo = new Globopomo({ breakDuration: 1, workDuration: 1 });
 
+const globoLookup = new Map<string, Globopomo>;
+
+globo.run()
 setInterval(() => {
-	console.log(globo.getTimeRemaining())
 	console.log(globo.mode)
-}, 1000 * 60)
+}, 1000)
 
 const fastify = fastifyServer();
 fastify.register(cors, {
@@ -23,8 +26,24 @@ fastify.register(cors, {
 });
 
 fastify.get("/pomo", (req, res) => {
-  res.code(200).send(globo.info);
+  if (req.query.code) {
+    return globoLookup.get(req.query.code)?.info
+  }
+  return globo.info
 });
+
+fastify.post("/create", (req,res) => {
+  if (req.body?.workDuration && req.body.breakDuration) {
+    const uid = generateAlphanumericCode();
+    const pomo = new Globopomo({workDuration: req.body.workDuration, breakDuration: req.body.breakDuration})
+    pomo.run()
+    globoLookup.set(uid, pomo)
+    res.code(200).send({uid})
+  } else {
+    throw new Error("provide workDuration and breakDuration")
+  }
+});
+
 
 (async () => {
   try {
@@ -63,7 +82,7 @@ fastify.get("/pomo", (req, res) => {
 //   prefix: "/trpc",
 //   trpcOptions: {
 //     router,
-//     createContext,
+//     // createContext,
 //   },
 // });
 
