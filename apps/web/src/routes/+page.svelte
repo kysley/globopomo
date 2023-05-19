@@ -1,33 +1,40 @@
 <script lang="ts">
-  import dayjs from "dayjs";
   import { onMount } from "svelte";
   import { PUBLIC_SERVICE_URL } from "$env/static/public";
   import { Globopomo } from "timer";
+  import CreatePomo from "../lib/components/create-pomo.svelte";
+  import { page } from "$app/stores";
+  import PomoAction from "../lib/components/pomo-action.svelte";
+  import SharePomo from "../lib/components/share-pomo.svelte";
 
   let timer: Globopomo | undefined = undefined;
-  const steps = ["-", "\\", "|", "/"];
-  let currentStep = 0;
-
-  $: paused = timer?.paused;
 
   let interval: NodeJS.Timer;
 
   $: title = timer ? (timer.mode === "work" ? "working" : "on break") : "...";
 
+  $: room = $page.url.searchParams.get("room");
+
   const fetchGlobo = async () => {
-    const res = await fetch(`${PUBLIC_SERVICE_URL}/pomo`);
+    let url = `${PUBLIC_SERVICE_URL}/pomo`;
+    if (room) {
+      url += `?room=${room}`;
+    }
+    const res = await fetch(url);
     return await res.json();
   };
+
+  function setTimer(newTimer: Globopomo) {
+    timer = newTimer;
+  }
 
   async function syncGlobo() {
     await loadPomo();
   }
 
   function startInterval() {
-    // timer?.start(() => {});
     interval = setInterval(() => {
       timer = timer;
-      // remainder = timer.remaining;
     }, 1000);
   }
 
@@ -46,7 +53,7 @@
       const res = await fetchGlobo();
       timer = new Globopomo(res);
     } catch (e) {
-      timer = new Globopomo({ breakDuration: 1, workDuration: 2 });
+      timer = new Globopomo({ breakDuration: 999, workDuration: 999 });
     } finally {
       startInterval();
     }
@@ -72,24 +79,30 @@
       >
 
       <p>
-        <!-- <span>[{steps[currentStep]}]</span> -->
         *¯`·.{timer.getTimeRemaining()}.·´¯`°
       </p>
       <div>
-        <button
-          on:click={() => {
+        <PomoAction
+          onClick={() => {
             timer?.skipMode();
             timer = timer;
-          }}>[skip]</button
+          }}
+          class="hover:text-blue-400">[skip]</PomoAction
         >
-        <button on:click={handlePauseUnpause}
-          >[{paused ? "unpause" : "pause"}]</button
+        <PomoAction onClick={handlePauseUnpause} class="hover:text-blue-400">
+          [{timer?.paused ? "unpause" : "pause"}]
+        </PomoAction>
+
+        <PomoAction onClick={syncGlobo} class="hover:text-blue-400"
+          >[sync]</PomoAction
         >
-        <button on:click={syncGlobo}>[sync]</button>
+
+        <CreatePomo {setTimer} />
+        {#if room}
+          <SharePomo {room} />
+        {/if}
       </div>
     </div>
-
-    <!-- <Counter /> -->
   </section>
 {/if}
 

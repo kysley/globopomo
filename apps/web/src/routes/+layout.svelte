@@ -4,7 +4,7 @@
   // import "./styles.css";
 </script>
 
-<div class="app">
+<div class="app bg-neutral-900 text-slate-200">
   <Header />
 
   <main>
