@@ -7,6 +7,7 @@ interface PomodoroTimerOptions {
 	workDuration: number; // in minutes
 	breakDuration: number; // in minutes
 	startedAt?: Date; // optional startedAt date
+	mode?: 'work' | 'break'
 }
 
 class Globopomo {
@@ -16,18 +17,21 @@ class Globopomo {
 	private pausedAt: Dayjs | null;
 	private isPaused: boolean;
 	private isWorkMode: boolean;
+	private timerId: NodeJS.Timeout | null;
 
 	constructor({
 		workDuration,
 		breakDuration,
 		startedAt,
+		mode = 'work'
 	}: PomodoroTimerOptions) {
 		this.workDuration = workDuration * 60; // convert minutes to seconds
 		this.breakDuration = breakDuration * 60; // convert minutes to seconds
 		this.startedAt = dayjs(startedAt || new Date()).utc();
 		this.pausedAt = null;
 		this.isPaused = false;
-		this.isWorkMode = true;
+		this.isWorkMode = mode === 'work';
+		this.timerId = null;
 	}
 
 	public get mode() {
@@ -38,11 +42,12 @@ class Globopomo {
 		return this.isPaused;
 	}
 
-	public get info() {
+	public get info():PomodoroTimerOptions {
 		return {
-			startedAt: this.startedAt,
+			startedAt: this.startedAt.toDate(),
 			workDuration: this.workDuration / 60,
 			breakDuration: this.breakDuration / 60,
+			mode: this.mode
 		};
 	}
 
@@ -100,5 +105,22 @@ class Globopomo {
 	public skipMode(): void {
 		this.toggleMode();
 	}
+
+  public run(): void {
+    if (this.timerId) {
+      clearTimeout(this.timerId);
+    }
+
+    const remainingTime = this.calculateTimeRemaining();
+    if (remainingTime === 0) {
+      this.toggleMode();
+      this.run();
+      return;
+    }
+
+    this.timerId = setTimeout(() => {
+      this.run();
+    }, remainingTime * 1000);
+  }
 }
 export { Globopomo };
