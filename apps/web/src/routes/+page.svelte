@@ -4,6 +4,7 @@
   import { Globopomo } from "timer";
   import CreatePomo from "../lib/components/create-pomo.svelte";
   import { page } from "$app/stores";
+  import { goto } from "$app/navigation";
   import PomoAction from "../lib/components/pomo-action.svelte";
   import SharePomo from "../lib/components/share-pomo.svelte";
 
@@ -29,6 +30,10 @@
   }
 
   async function syncGlobo() {
+    const query = new URLSearchParams($page.url.searchParams);
+    query.delete("room");
+    goto(`?${query.toString()}`);
+    // Update the URL without reloading the page
     await loadPomo();
   }
 
