@@ -32,7 +32,7 @@ fastify.get("/pomo", (req, res) => {
   return globo.info
 });
 
-fastify.post("/create", (req,res) => {
+fastify.post("/pomo/create", (req,res) => {
   if (req.body?.workDuration && req.body.breakDuration) {
     const uid = generateAlphanumericCode();
     const pomo = new Globopomo({workDuration: req.body.workDuration, breakDuration: req.body.breakDuration})
