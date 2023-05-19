@@ -10,7 +10,7 @@ import { generateAlphanumericCode } from "./utils";
 // import fastifyCookie from "@fastify/cookie";
 // import fastifyJwt from "@fastify/jwt";
 dotenv.config();
-const globo = new Globopomo({ breakDuration: 1, workDuration: 1 });
+const globo = new Globopomo({ breakDuration: 5, workDuration: 25 });
 
 const globoLookup = new Map<string, Globopomo>;
 
