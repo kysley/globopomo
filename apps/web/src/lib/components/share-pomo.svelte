@@ -5,7 +5,7 @@
   let showCopied = false;
 
   function copyRoomLink() {
-    navigator.clipboard.writeText(`${window.location.href}/?room=${room}`);
+    navigator.clipboard.writeText(window.location.href);
     showCopied = true;
     setTimeout(() => {
       showCopied = false;
